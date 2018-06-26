@@ -2,6 +2,9 @@ package com.stackroute.datamunger.reader;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.File;
 
 import com.stackroute.datamunger.query.DataTypeDefinitions;
 import com.stackroute.datamunger.query.Header;
@@ -9,8 +12,9 @@ import com.stackroute.datamunger.query.Header;
 public class CsvQueryProcessor extends QueryProcessingEngine {
 
 	// Parameterized constructor to initialize filename
+	String fileName;
 	public CsvQueryProcessor(String fileName) throws FileNotFoundException {
-
+		this.fileName =fileName;
 	}
 
 	/*
@@ -25,7 +29,14 @@ public class CsvQueryProcessor extends QueryProcessingEngine {
 		// read the first line
 
 		// populate the header object with the String array containing the header names
-		return null;
+		 File file = new File(fileName);
+	       FileReader fileReader = new FileReader(file);
+	       BufferedReader bufferedReader = new BufferedReader(fileReader);
+	       String line=bufferedReader.readLine();
+	       bufferedReader.close();
+	       Header head=new Header();
+	       head.setHeaders(line.trim().split(","));
+		return head;
 	}
 
 	/**
@@ -50,6 +61,41 @@ public class CsvQueryProcessor extends QueryProcessingEngine {
 	@Override
 	public DataTypeDefinitions getColumnType() throws IOException {
 
-		return null;
+		File file = new File("data/ipl.csv");
+	       FileReader fileReader = new FileReader(file);
+	       BufferedReader bufferedReader = new BufferedReader(fileReader);
+	       String line=bufferedReader.readLine();
+	       String line2=bufferedReader.readLine();
+	       bufferedReader.close();
+	       DataTypeDefinitions dataTypeDefinitions=new DataTypeDefinitions();
+	       String[] firstLine=line2.trim().split(",",line.length());
+	       String[] dataTypes=new String[firstLine.length];
+	       Integer intdata;
+	       Double doubleData;
+	       for(int i=0;i<firstLine.length;i++)
+	       {
+	           try
+	           {
+	               intdata=Integer.parseInt(firstLine[i]);
+	               dataTypes[i]=intdata.getClass().getName();
+	               
+	               System.out.println(dataTypes[i]);
+	           }
+	           catch(NumberFormatException e)
+	           {
+	               try {
+	                   doubleData=Double.parseDouble(firstLine[i]);
+	                   dataTypes[i]=doubleData.getClass().getName();
+	                   System.out.println(dataTypes[i]);
+	               }
+	               catch(NumberFormatException f){
+	                   dataTypes[i]=firstLine[i].getClass().getName();
+	                   System.out.println(dataTypes[i]);
+	               }
+	           }
+	       }
+	       
+	       dataTypeDefinitions.setDataTypes(dataTypes);
+		return dataTypeDefinitions;
 	}
 }
